@@ -215,6 +215,16 @@ config TARGET_IMX8MP_ICORE_MX8MP
 	  * i.Core MX8M Plus needs to mount on top of EDIMM2.2 for
 	    creating complete i.Core MX8M Plus EDIMM2.2 Starter Kit.
 
+config TARGET_PIMX
+	bool "PiMX REV 1 board"
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+	imply OF_UPSTREAM
+
 config TARGET_IMX8MP_EVK
 	bool "imx8mp LPDDR4 EVK board"
 	select IMX8MP
@@ -375,5 +385,6 @@ source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 source "board/toradex/verdin-imx8mp/Kconfig"
+source "board/freescale/pimx/Kconfig"
 
 endif

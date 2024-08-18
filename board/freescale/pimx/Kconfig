@@ -1,0 +1,15 @@
+if TARGET_PIMX
+
+config SYS_BOARD
+	default "pimx"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "pimx"
+
+config IMX_CONFIG
+	default "board/freescale/pimx/imximage-8mp-lpddr4.cfg"
+
+endif
