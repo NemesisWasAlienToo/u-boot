@@ -41,10 +41,6 @@
 	bootph-pre-ram;
 };
 
-&pinctrl_usdhc2_gpio {
-	bootph-pre-ram;
-};
-
 &pinctrl_usdhc2 {
 	bootph-pre-ram;
 };
