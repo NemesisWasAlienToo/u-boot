@@ -35,8 +35,27 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"initrd_addr=0x43800000\0" \
 	"bootm_size=0x10000000\0" \
+	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
+	"mmcautodetect=yes\0" \
+	"mmcargs=setenv bootargs console=${console} root=${mmcroot}\0 " \
+	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr_r} ${fdtfile}\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"if run loadfdt; then " \
+			"booti ${loadaddr} - ${fdt_addr_r}; " \
+		"else " \
+			"echo WARN: Cannot load the DT; " \
+		"fi;\0" \
+	"bootcmd=echo Running BSP bootcmd ...; " \
+		"mmc dev ${mmcdev}; if mmc rescan; then " \
+			"if run loadimage; then " \
+				"run mmcboot; " \
+			"else run netboot; " \
+			"fi; " \
+	   "fi;\0"
 
 /* Link Definitions */
 #define CFG_SYS_INIT_RAM_ADDR	0x40000000
