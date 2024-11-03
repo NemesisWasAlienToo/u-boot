@@ -29,7 +29,7 @@
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
-	"console=ttymxc1,115200 earlycon=ec_imx6q,0x30890000,115200\0" \
+	"console=tty0 console=ttymxc1,115200 earlycon=ec_imx6q,0x30890000,115200\0" \
 	"fdt_addr_r=0x43000000\0" \
 	"boot_fdt=try\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
