@@ -6,7 +6,6 @@
  * Stephen Warren <swarren@wwwdotorg.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <asm/global_data.h>
@@ -28,7 +27,7 @@ static int fdt_simplefb_configure_node(void *blob, int off)
 	struct udevice *dev;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL) {
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && xpl_phase() > PHASE_SPL) {
 		struct video_handoff *ho;
 
 		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
@@ -104,7 +103,6 @@ static int fdt_simplefb_enable_existing_node(void *blob)
 	return fdt_simplefb_configure_node(blob, off);
 }
 
-#if IS_ENABLED(CONFIG_VIDEO)
 int fdt_simplefb_enable_and_mem_rsv(void *blob)
 {
 	int ret;
@@ -119,4 +117,3 @@ int fdt_simplefb_enable_and_mem_rsv(void *blob)
 
 	return fdt_add_fb_mem_rsv(blob);
 }
-#endif

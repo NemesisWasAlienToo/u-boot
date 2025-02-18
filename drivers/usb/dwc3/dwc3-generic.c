@@ -7,30 +7,17 @@
  * Based on dwc3-omap.c.
  */
 
-#include <common.h>
-#include <cpu_func.h>
-#include <log.h>
 #include <dm.h>
-#include <dm/device-internal.h>
-#include <dm/lists.h>
-#include <dwc3-uboot.h>
-#include <generic-phy.h>
-#include <linux/bitops.h>
-#include <linux/delay.h>
-#include <linux/printk.h>
-#include <linux/usb/ch9.h>
-#include <linux/usb/gadget.h>
-#include <malloc.h>
-#include <power/regulator.h>
-#include <usb.h>
-#include "core.h"
-#include "gadget.h"
 #include <reset.h>
-#include <clk.h>
-#include <usb/xhci.h>
 #include <asm/gpio.h>
-
+#include <dm/lists.h>
+#include <linux/delay.h>
+#include <linux/usb/gadget.h>
+#include <power/regulator.h>
+#include <usb/xhci.h>
+#include "core.h"
 #include "dwc3-generic.h"
+#include "gadget.h"
 
 struct dwc3_generic_plat {
 	fdt_addr_t base;
@@ -52,7 +39,8 @@ struct dwc3_generic_host_priv {
 };
 
 static int dwc3_generic_probe(struct udevice *dev,
-			      struct dwc3_generic_priv *priv)
+			      struct dwc3_generic_priv *priv,
+			      enum usb_dr_mode mode)
 {
 	int rc;
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
@@ -63,7 +51,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
-	dwc3->dr_mode = plat->dr_mode;
+	dwc3->dr_mode = mode;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	dwc3_of_parse(dwc3);
 
@@ -132,7 +120,6 @@ static int dwc3_generic_probe(struct udevice *dev,
 	priv->base = map_physmem(plat->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
 	dwc3->regs = priv->base + DWC3_GLOBALS_REGS_START;
 
-
 	rc =  dwc3_init(dwc3);
 	if (rc) {
 		unmap_physmem(priv->base, MAP_NOCACHE);
@@ -195,21 +182,11 @@ static int dwc3_generic_of_to_plat(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	struct dwc3_generic_priv *priv = dev_get_priv(dev);
-	struct dwc3 *dwc3 = &priv->dwc3;
-
-	dwc3_gadget_uboot_handle_interrupt(dwc3);
-
-	return 0;
-}
-
 static int dwc3_generic_peripheral_probe(struct udevice *dev)
 {
 	struct dwc3_generic_priv *priv = dev_get_priv(dev);
 
-	return dwc3_generic_probe(dev, priv);
+	return dwc3_generic_probe(dev, priv, USB_DR_MODE_PERIPHERAL);
 }
 
 static int dwc3_generic_peripheral_remove(struct udevice *dev)
@@ -219,10 +196,25 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 	return dwc3_generic_remove(dev, priv);
 }
 
+static int dwc3_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct dwc3_generic_priv *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
+
+	dwc3_gadget_uboot_handle_interrupt(dwc3);
+
+	return 0;
+}
+
+static const struct usb_gadget_generic_ops dwc3_gadget_ops = {
+	.handle_interrupts	= dwc3_gadget_handle_interrupts,
+};
+
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 	.of_to_plat = dwc3_generic_of_to_plat,
+	.ops	= &dwc3_gadget_ops,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
 	.priv_auto	= sizeof(struct dwc3_generic_priv),
@@ -238,17 +230,17 @@ static int dwc3_generic_host_probe(struct udevice *dev)
 	struct dwc3_generic_host_priv *priv = dev_get_priv(dev);
 	int rc;
 
-	rc = dwc3_generic_probe(dev, &priv->gen_priv);
+	rc = dwc3_generic_probe(dev, &priv->gen_priv, USB_DR_MODE_HOST);
 	if (rc)
 		return rc;
 
 	rc = device_get_supply_regulator(dev, "vbus-supply", &priv->vbus_supply);
-	if (rc)
+	if (rc && rc != -ENOSYS)
 		debug("%s: No vbus regulator found: %d\n", dev->name, rc);
 
-	/* Only returns an error if regulator is valid and failed to enable due to a driver issue */
+	/* Does not return an error if regulator is invalid - but does so when DM_REGULATOR is disabled */
 	rc = regulator_set_enable_if_allowed(priv->vbus_supply, true);
-	if (rc)
+	if (rc && rc != -ENOSYS)
 		return rc;
 
 	hccr = (struct xhci_hccr *)priv->gen_priv.base;

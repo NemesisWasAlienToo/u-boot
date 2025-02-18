@@ -4,7 +4,6 @@
  * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
  */
 
-#include <common.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rv1126.h>
@@ -67,7 +66,7 @@ int arch_cpu_init(void)
 	 * since they are unsecure.
 	 * (Note: only secure-world can access this register)
 	 */
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		writel(0, FIREWALL_APB_BASE + FW_DDR_CON_REG);
 
 	return 0;

@@ -5,6 +5,8 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -783,7 +785,12 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 	lastoff = offset;
 #endif
 
-        invalidate_icache_all();
+	/*
+	 * If on x86 a write affects a prefetched instruction,
+	 * the prefetch queue is invalidated.
+	 */
+	if (!CONFIG_IS_ENABLED(X86))
+		invalidate_icache_all();
 }
 
 /**

@@ -7,7 +7,6 @@
  * Based on Linux driver
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>
@@ -16,6 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <power/regulator.h>
 
 /* Non-standard registers needed for SDHCI startup */
 #define SDCC_MCI_POWER   0x0
@@ -33,6 +33,8 @@
 #define SDCC_MCI_STATUS2_MCI_ACT 0x1
 #define SDCC_MCI_HC_MODE 0x78
 
+#define CORE_VENDOR_SPEC_POR_VAL 0xa9c
+
 struct msm_sdhc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -42,11 +44,13 @@ struct msm_sdhc {
 	struct sdhci_host host;
 	void *base;
 	struct clk_bulk clks;
+	struct udevice *vqmmc;
 };
 
 struct msm_sdhc_variant_info {
 	bool mci_removed;
 
+	u32 core_vendor_spec;
 	u32 core_vendor_spec_capabilities0;
 };
 
@@ -55,10 +59,13 @@ DECLARE_GLOBAL_DATA_PTR;
 static int msm_sdc_clk_init(struct udevice *dev)
 {
 	struct msm_sdhc *prv = dev_get_priv(dev);
+	const struct msm_sdhc_variant_info *var_info;
 	ofnode node = dev_ofnode(dev);
 	ulong clk_rate;
 	int ret, i = 0, n_clks;
 	const char *clk_name;
+
+	var_info = (void *)dev_get_driver_data(dev);
 
 	ret = ofnode_read_u32(node, "clock-frequency", (uint *)(&clk_rate));
 	if (ret)
@@ -106,6 +113,9 @@ static int msm_sdc_clk_init(struct udevice *dev)
 		return -EINVAL;
 	}
 
+	writel_relaxed(CORE_VENDOR_SPEC_POR_VAL,
+		       prv->host.ioaddr + var_info->core_vendor_spec);
+
 	return 0;
 }
 
@@ -114,7 +124,6 @@ static int msm_sdc_mci_init(struct msm_sdhc *prv)
 	/* Reset the core and Enable SDHC mode */
 	writel(readl(prv->base + SDCC_MCI_POWER) | SDCC_MCI_POWER_SW_RST,
 	       prv->base + SDCC_MCI_POWER);
-
 
 	/* Wait for reset to be written to register */
 	if (wait_for_bit_le32(prv->base + SDCC_MCI_STATUS2,
@@ -155,6 +164,16 @@ static int msm_sdc_probe(struct udevice *dev)
 	ret = msm_sdc_clk_init(dev);
 	if (ret)
 		return ret;
+
+	/* Get the vqmmc regulator and enable it if available */
+	device_get_supply_regulator(dev, "vqmmc-supply", &prv->vqmmc);
+	if (prv->vqmmc) {
+		ret = regulator_set_enable_if_allowed(prv->vqmmc, true);
+		if (ret) {
+			printf("Failed to enable the VQMMC regulator\n");
+			return ret;
+		}
+	}
 
 	var_info = (void *)dev_get_driver_data(dev);
 	if (!var_info->mci_removed) {
@@ -256,12 +275,14 @@ static int msm_sdc_bind(struct udevice *dev)
 static const struct msm_sdhc_variant_info msm_sdhc_mci_var = {
 	.mci_removed = false,
 
+	.core_vendor_spec = 0x10c,
 	.core_vendor_spec_capabilities0 = 0x11c,
 };
 
 static const struct msm_sdhc_variant_info msm_sdhc_v5_var = {
 	.mci_removed = true,
 
+	.core_vendor_spec = 0x20c,
 	.core_vendor_spec_capabilities0 = 0x21c,
 };
 

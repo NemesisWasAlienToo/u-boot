@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <init.h>
@@ -76,3 +75,9 @@ void board_debug_uart_init(void)
 	/* this was already done in SPL */
 }
 #endif
+
+void x86_get_identity_for_timer(void)
+{
+	/* set the vendor to Intel so that native_calibrate_tsc() works */
+	gd->arch.x86_vendor = X86_VENDOR_INTEL;
+}

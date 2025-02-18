@@ -5,7 +5,7 @@
  * Copyright (c) 2022 DENX Software Engineering GmbH, Philip Oberfichtner <pro@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <bootstage.h>
 #include <dm.h>
@@ -269,7 +269,7 @@ int dram_init(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_SPL_BUILD)
+#if IS_ENABLED(CONFIG_XPL_BUILD)
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>

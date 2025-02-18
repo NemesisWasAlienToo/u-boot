@@ -29,8 +29,7 @@
  *   Board: MB<Board> Var<VarCPN>.<VarFG> Rev.<Revision>-<BOM>
  */
 
-#ifndef CONFIG_SPL_BUILD
-#include <common.h>
+#ifndef CONFIG_XPL_BUILD
 #include <command.h>
 #include <console.h>
 #include <misc.h>

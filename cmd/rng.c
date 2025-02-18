@@ -4,7 +4,6 @@
  *
  * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>
@@ -76,6 +75,6 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	rng, 3, 0, do_rng,
 	"print bytes from the hardware random number generator",
-	"list         - list all the probed rng devices\n"
-	"rng [dev] [n]    - print n random bytes(max 64) read from dev\n"
+	"list          - list all probed rng devices\n"
+	"rng [dev [n]] - print n random bytes (max 64) read from dev\n"
 );

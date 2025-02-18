@@ -29,6 +29,7 @@ enum rk3588_pll_id {
 	V0PLL,
 	AUPLL,
 	PPLL,
+	SPLL,
 	PLL_COUNT,
 };
 
@@ -91,6 +92,8 @@ struct rk3588_cru {
 	unsigned int pmuclkgate_con[9]; /* Address Offset: 0x0100 */
 };
 
+#define rockchip_cru rk3588_cru
+
 check_member(rk3588_cru, mode_con00, 0x280);
 check_member(rk3588_cru, pmuclksel_con[1], 0x30304);
 
@@ -149,6 +152,9 @@ struct pll_rate_table {
 #define RK3588_DSU_CLKSEL_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0x300)
 #define RK3588_DSU_CLKGATE_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0x800)
 #define RK3588_DSU_SOFTRST_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0xa00)
+
+#define RK3588_SBUSCRU_SPLL_CON(x)	((x) * 0x4 + 0x220)
+#define RK3588_SBUSCRU_MODE_CON0	0x280
 
 enum {
 	/* CRU_CLK_SEL8_CON */
@@ -340,7 +346,7 @@ enum {
 	ACLK_VOP_LOW_ROOT_SEL_100M,
 	ACLK_VOP_LOW_ROOT_SEL_24M,
 	ACLK_VOP_ROOT_SEL_SHIFT			= 5,
-	ACLK_VOP_ROOT_SEL_MASK			= 3 << ACLK_VOP_ROOT_SEL_SHIFT,
+	ACLK_VOP_ROOT_SEL_MASK			= 7 << ACLK_VOP_ROOT_SEL_SHIFT,
 	ACLK_VOP_ROOT_SEL_GPLL			= 0,
 	ACLK_VOP_ROOT_SEL_CPLL,
 	ACLK_VOP_ROOT_SEL_AUPLL,

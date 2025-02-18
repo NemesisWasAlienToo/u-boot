@@ -5,7 +5,6 @@
  * RGPIO2P driver for the Freescale i.MX7ULP.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -232,7 +231,7 @@ static struct imx_rgpio2p_soc_data imx7ulp_data = {
 	.have_dual_base = true,
 };
 
-static struct imx_rgpio2p_soc_data imx8ulp_data = {
+static struct imx_rgpio2p_soc_data imx8ulp_data __section(".data") = {
 	.have_dual_base = false,
 };
 

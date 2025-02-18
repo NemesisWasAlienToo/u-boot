@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY UCLASS_GPIO
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
@@ -15,6 +14,7 @@
 #include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <linux/delay.h>
 
 enum mcp230xx_type {
 	UNKNOWN = 0,

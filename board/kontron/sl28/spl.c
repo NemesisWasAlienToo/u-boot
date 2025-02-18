@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/spl.h>
 #include <asm/arch-fsl-layerscape/fsl_serdes.h>
@@ -50,9 +50,10 @@ int board_fit_config_name_match(const char *name)
 		return strcmp(name, "freescale/fsl-ls1028a-kontron-sl28-var1");
 	case 2:
 		return strcmp(name, "freescale/fsl-ls1028a-kontron-sl28-var2");
+	case 3:
+		return strcmp(name, "freescale/fsl-ls1028a-kontron-sl28-var3");
 	case 4:
 		return strcmp(name, "freescale/fsl-ls1028a-kontron-sl28-var4");
-	case 3:
 	default:
 		return strcmp(name, "freescale/fsl-ls1028a-kontron-sl28");
 	}

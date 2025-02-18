@@ -14,7 +14,6 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
-#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <env.h>
@@ -427,7 +426,6 @@ int zboot_go(void)
 	image_64bit = false;
 	if (IS_ENABLED(CONFIG_X86_RUN_64BIT) &&
 	    (hdr->xloadflags & XLF_KERNEL_64)) {
-		entry += 0x200;
 		image_64bit = true;
 	}
 

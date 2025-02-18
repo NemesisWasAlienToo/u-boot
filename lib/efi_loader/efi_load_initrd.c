@@ -4,6 +4,7 @@
  */
 
 #define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
 #include <efi_variable.h>
@@ -24,7 +25,7 @@ static const struct efi_load_file_protocol efi_lf2_protocol = {
  * Device path defined by Linux to identify the handle providing the
  * EFI_LOAD_FILE2_PROTOCOL used for loading the initial ramdisk.
  */
-static const struct efi_initrd_dp dp_lf2_handle = {
+static const struct efi_lo_dp_prefix dp_lf2_handle = {
 	.vendor = {
 		{
 		   DEVICE_PATH_TYPE_MEDIA_DEVICE,

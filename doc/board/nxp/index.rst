@@ -11,6 +11,9 @@ NXP Semiconductors
    imx8mp_evk
    imx8mq_evk
    imx8qxp_mek
+   imx8ulp_evk
+   imx91_11x11_evk
+   imx93_9x9_qsb
    imx93_11x11_evk
    imxrt1020-evk
    imxrt1050-evk
